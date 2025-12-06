@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pankaj Enterprises - Admin Panel</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f2f5; }
+header { background:#764ba2; color:white; padding:15px; text-align:center; }
+.container { max-width:900px; margin:20px auto; background:white; padding:20px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+h2 { color:#333; }
+input, select, textarea { width:100%; padding:10px; margin:6px 0; border-radius:5px; border:1px solid #ccc; }
+button { padding:10px 15px; border:none; border-radius:5px; cursor:pointer; font-weight:700; }
+.login-btn { background:#764ba2; color:white; width:100%; }
+.add-btn { background:#00c853; color:white; margin-top:5px; width:100%; }
+.logout-btn { background:#ff4444; color:white; float:right; margin-bottom:10px; }
+.product-item { border:1px solid #ccc; padding:10px; margin:8px 0; border-radius:6px; display:flex; flex-direction:column; gap:8px; }
+.product-info { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.product-info img { width:60px; height:60px; object-fit:cover; border-radius:6px; }
+.product-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.product-actions button { flex:1; min-width:100px; }
+label { font-size:14px; }
+.note { background:#ffeb3b; padding:8px; border-radius:5px; margin-top:10px; }
+table { width:100%; border-collapse: collapse; margin-top:15px; font-size:14px;}
+th, td { border:1px solid #ccc; padding:6px; text-align:left; }
+th { background:#764ba2; color:white; }
+
+@media (max-width:600px){
+    .product-info { flex-direction:column; align-items:flex-start; }
+    .product-actions { flex-direction:column; }
+    .product-actions button { width:100%; }
+}
+
+/* ===== OVERFLOW FIXED ===== */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+</style>
+</head>
+<body>
+
+<header>
+<h1>Pankaj Enterprises - Admin Panel</h1>
+</header>
+
+<div class="container" id="login-container">
+<h2>Login</h2>
+<input type="email" id="admin-email" placeholder="Email">
+<input type="password" id="admin-pass" placeholder="Password">
+<button class="login-btn" onclick="loginAdmin()">Login</button>
+<div id="login-msg" class="note"></div>
+</div>
+
+<div class="container" id="admin-panel" style="display:none;">
+<button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+
+<h2>Orders</h2>
+
+<!-- ===== TABLE WRAPPER ADDED ===== -->
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Product</th>
+<th>Price</th>
+<th>Customer</th>
+<th>Phone</th>
+<th>Address</th>
+<th>WhatsApp</th>
+</tr>
+</thead>
+<tbody id="orders-table">
+</tbody>
+</table>
+</div>
+<!-- =============================== -->
+
+<h2>Manage Products</h2>
+<div id="product-list"></div>
+
+<h2>Add Product</h2>
+<div>
+<input type="text" id="new-name" placeholder="Product Name">
+<input type="text" id="new-price" placeholder="Product Price">
+<input type="file" id="new-img" accept="image/*">
+<button class="add-btn" onclick="addProduct()">Add Product</button>
+</div>
+
+<script>
+// Admin credentials
+const admins = [
+  {email:"hr708401@gmail.com", password:"alok7070", name:"HR"},
+  {email:"tripathivlogs39@gmail.com", password:"musetiwari", name:"Tripathi"}
+];
+
+// Login system
+function loginAdmin(){
+  const email = document.getElementById("admin-email").value.trim();
+  const pass = document.getElementById("admin-pass").value.trim();
+  const user = admins.find(a => a.email===email && a.password===pass);
+  if(user){
+    document.getElementById("login-container").style.display="none";
+    document.getElementById("admin-panel").style.display="block";
+    loadOrders();
+    loadProducts();
+    alert("Welcome, " + user.name);
+  }else{
+    document.getElementById("login-msg").innerText="Invalid email or password!";
+  }
+}
+
+function logoutAdmin(){
+  document.getElementById("admin-panel").style.display="none";
+  document.getElementById("login-container").style.display="block";
+  document.getElementById("admin-email").value="";
+  document.getElementById("admin-pass").value="";
+}
+
+// Orders
+function loadOrders(){
+  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  const tbody = document.getElementById("orders-table");
+  tbody.innerHTML="";
+  orders.forEach(o => {
+    const tr = document.createElement("tr");
+    const address = `House: ${o.address.house}, Village: ${o.address.village}, District: ${o.address.district}, State: ${o.address.state}, Pincode: ${o.address.pincode}, Landmarks: ${o.address.landmarks}`;
+    const waLink = `https://wa.me/919415977070?text=${encodeURIComponent(`Order: ${o.product}\nPrice: ${o.price}\nCustomer: ${o.customer}\nPhone: ${o.phone}\nAddress: ${address}`)}`;
+    tr.innerHTML = `
+      <td>${o.date}</td>
+      <td>${o.product}</td>
+      <td>${o.price}</td>
+      <td>${o.customer}</td>
+      <td>${o.phone}</td>
+      <td>${address}</td>
+      <td><a href="${waLink}" target="_blank">WhatsApp</a></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Load products
+function loadProducts(){
+  const products = JSON.parse(localStorage.getItem("products") || "[]");
+  const container = document.getElementById("product-list");
+  container.innerHTML = "";
+  products.forEach((p, index)=>{
+    const prodDiv = document.createElement("div");
+    prodDiv.className="product-item";
+    const imgSrc = p.img.startsWith("data:") ? p.img : p.img;
+    prodDiv.innerHTML = `
+      <div class="product-info">
+        <img src="${imgSrc}">
+        <div>
+          <b>${p.name}</b><br>${p.price}<br>
+          <label>
+            <input type="checkbox" ${p.outOfStock ? "checked" : ""} onchange="toggleStock(${index}, this.checked)"> Out of Stock
+          </label>
+        </div>
+      </div>
+      <div class="product-actions">
+        <button onclick="removeProduct(${index})" style="background:#ff4444; color:white;">Remove</button>
+      </div>
+    `;
+    container.appendChild(prodDiv);
+  });
+}
+
+// Add product
+function addProduct(){
+  const name = document.getElementById("new-name").value.trim();
+  const price = document.getElementById("new-price").value.trim();
+  const imgInput = document.getElementById("new-img");
+  if(!name || !price || !imgInput.files[0]){ alert("Fill all fields"); return; }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const imgData = e.target.result;
+    let products = JSON.parse(localStorage.getItem("products") || "[]");
+    products.push({name, price, img:imgData, outOfStock:false});
+    localStorage.setItem("products", JSON.stringify(products));
+    loadProducts();
+    document.getElementById("new-name").value="";
+    document.getElementById("new-price").value="";
+    imgInput.value="";
+  }
+  reader.readAsDataURL(imgInput.files[0]);
+}
+
+// Remove product
+function removeProduct(index){
+  let products = JSON.parse(localStorage.getItem("products") || "[]");
+  products.splice(index,1);
+  localStorage.setItem("products", JSON.stringify(products));
+  loadProducts();
+}
+
+// Toggle out-of-stock
+function toggleStock(index, value){
+  let products = JSON.parse(localStorage.getItem("products") || "[]");
+  products[index].outOfStock = value;
+  localStorage.setItem("products", JSON.stringify(products));
+}
+
+</script>
+</body>
+</html>
