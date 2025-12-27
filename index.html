@@ -1,208 +1,620 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pankaj Enterprises - Admin Panel</title>
-<style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f2f5; }
-header { background:#764ba2; color:white; padding:15px; text-align:center; }
-.container { max-width:900px; margin:20px auto; background:white; padding:20px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-h2 { color:#333; }
-input, select, textarea { width:100%; padding:10px; margin:6px 0; border-radius:5px; border:1px solid #ccc; }
-button { padding:10px 15px; border:none; border-radius:5px; cursor:pointer; font-weight:700; }
-.login-btn { background:#764ba2; color:white; width:100%; }
-.add-btn { background:#00c853; color:white; margin-top:5px; width:100%; }
-.logout-btn { background:#ff4444; color:white; float:right; margin-bottom:10px; }
-.product-item { border:1px solid #ccc; padding:10px; margin:8px 0; border-radius:6px; display:flex; flex-direction:column; gap:8px; }
-.product-info { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-.product-info img { width:60px; height:60px; object-fit:cover; border-radius:6px; }
-.product-actions { display:flex; gap:8px; flex-wrap:wrap; }
-.product-actions button { flex:1; min-width:100px; }
-label { font-size:14px; }
-.note { background:#ffeb3b; padding:8px; border-radius:5px; margin-top:10px; }
-table { width:100%; border-collapse: collapse; margin-top:15px; font-size:14px;}
-th, td { border:1px solid #ccc; padding:6px; text-align:left; }
-th { background:#764ba2; color:white; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Pankaj Enterprises</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-@media (max-width:600px){
-    .product-info { flex-direction:column; align-items:flex-start; }
-    .product-actions { flex-direction:column; }
-    .product-actions button { width:100%; }
-}
+    <style>
+        :root {
+            --admin-primary: #343a40;
+            --admin-secondary: #f8f9fa;
+            --admin-accent: #007bff;
+            --admin-text: #333;
+            --admin-light-text: #f8f9fa;
+            --font-family: 'Poppins', sans-serif;
+        }
 
-/* ===== OVERFLOW FIXED ===== */
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-</style>
+        body {
+            font-family: var(--font-family);
+            background-color: #f4f7f6;
+            color: var(--admin-text);
+        }
+        
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--admin-primary);
+            color: var(--admin-light-text);
+            transition: width 0.3s;
+        }
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-bottom: 1px solid #495057;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 20px 0;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: var(--admin-light-text);
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .sidebar-nav a.active, .sidebar-nav a:hover { background-color: #495057; }
+        .sidebar-nav a i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .admin-page { display: none; }
+        .admin-page.active { display: block; }
+
+        /* Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .stat-card h3 { color: #6c757d; font-size: 1rem; }
+        .stat-card .count { font-size: 2.5rem; font-weight: 600; color: var(--admin-primary); }
+
+        /* Tables */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        button, .btn {
+            padding: 10px 15px;
+            border: none;
+            background-color: var(--admin-accent);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .btn-add {
+            background-color: #28a745;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+            vertical-align: top; /* Align content to top */
+        }
+        .data-table th { background-color: #f8f9fa; }
+        .data-table img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .action-btns button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            width: auto;
+        }
+        .btn-edit { background-color: #ffc107; }
+        .btn-delete { background-color: #dc3545; }
+        .status-select { padding: 5px; border-radius: 4px; }
+
+        /* Modal */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background-color: #fff; padding: 20px; border-radius: 8px;
+            width: 90%; max-width: 600px; position: relative;
+        }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea { resize: vertical; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-wrapper { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar-header { display: none; }
+            .sidebar-nav {
+                display: flex;
+                justify-content: space-around;
+                width: 100%;
+                padding: 0;
+            }
+            .sidebar-nav a { padding: 15px 10px; justify-content: center; }
+            .sidebar-nav a .nav-text { display: none; }
+            .sidebar-nav a i { margin-right: 0; }
+            .main-content { padding: 15px; }
+        }
+    </style>
 </head>
 <body>
 
-<header>
-<h1>Pankaj Enterprises - Admin Panel</h1>
-</header>
+    <div class="admin-wrapper" id="admin-dashboard-wrapper" style="display: flex;">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">Admin Panel</div>
+            <ul class="sidebar-nav">
+                <li><a href="#dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> <span class="nav-text">Dashboard</span></a></li>
+                <li><a href="#products" class="nav-link"><i class="fas fa-box-open"></i> <span class="nav-text">Products</span></a></li>
+                <li><a href="#orders" class="nav-link"><i class="fas fa-receipt"></i> <span class="nav-text">Orders</span></a></li>
+                <li><a href="#slider" class="nav-link"><i class="fas fa-images"></i> <span class="nav-text">Slider</span></a></li>
+                <li><a href="#messages" class="nav-link"><i class="fas fa-envelope"></i> <span class="nav-text">Messages</span></a></li>
+            </ul>
+        </nav>
 
-<div class="container" id="login-container">
-<h2>Login</h2>
-<input type="email" id="admin-email" placeholder="Email">
-<input type="password" id="admin-pass" placeholder="Password">
-<button class="login-btn" onclick="loginAdmin()">Login</button>
-<div id="login-msg" class="note"></div>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <section id="dashboard" class="admin-page active">
+                <h1>Dashboard</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Products</h3>
+                        <p class="count" id="total-products">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Orders</h3>
+                        <p class="count" id="total-orders">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <p class="count" id="total-users">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Messages</h3>
+                        <p class="count" id="total-messages">0</p>
+                    </div>
+                </div>
+            </section>
 
-<div class="container" id="admin-panel" style="display:none;">
-<button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+            <!-- Product Management -->
+            <section id="products" class="admin-page">
+                <div class="content-header">
+                    <h1>Manage Products</h1>
+                    <button class="btn-add" id="add-product-btn">Add New Product</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body"></tbody>
+                </table>
+            </section>
 
-<h2>Orders</h2>
+            <!-- MODIFIED HERE: Updated orders table headers -->
+            <section id="orders" class="admin-page">
+                <h1>Manage Orders</h1>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Contact</th>
+                            <th>Address</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body"></tbody>
+                </table>
+            </section>
 
-<!-- ===== TABLE WRAPPER ADDED ===== -->
-<div class="table-wrapper">
-<table>
-<thead>
-<tr>
-<th>Date</th>
-<th>Product</th>
-<th>Price</th>
-<th>Customer</th>
-<th>Phone</th>
-<th>Address</th>
-<th>WhatsApp</th>
-</tr>
-</thead>
-<tbody id="orders-table">
-</tbody>
-</table>
-</div>
-<!-- =============================== -->
+            <!-- Slider Management -->
+            <section id="slider" class="admin-page">
+                <div class="content-header">
+                    <h1>Manage Slider Images</h1>
+                    <button class="btn-add" id="add-slider-image-btn">Add New Image</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Image Preview</th>
+                            <th>Image URL</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="slider-table-body"></tbody>
+                </table>
+            </section>
+            
+            <!-- Messages Page -->
+            <section id="messages" class="admin-page">
+                <h1>User Messages</h1>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody id="messages-table-body"></tbody>
+                </table>
+            </section>
+        </main>
+    </div>
 
-<h2>Manage Products</h2>
-<div id="product-list"></div>
-
-<h2>Add Product</h2>
-<div>
-<input type="text" id="new-name" placeholder="Product Name">
-<input type="text" id="new-price" placeholder="Product Price">
-<input type="file" id="new-img" accept="image/*">
-<button class="add-btn" onclick="addProduct()">Add Product</button>
-</div>
-
-<script>
-// Admin credentials
-const admins = [
-  {email:"hr708401@gmail.com", password:"alok7070", name:"HR"},
-  {email:"tripathivlogs39@gmail.com", password:"musetiwari", name:"Tripathi"}
-];
-
-// Login system
-function loginAdmin(){
-  const email = document.getElementById("admin-email").value.trim();
-  const pass = document.getElementById("admin-pass").value.trim();
-  const user = admins.find(a => a.email===email && a.password===pass);
-  if(user){
-    document.getElementById("login-container").style.display="none";
-    document.getElementById("admin-panel").style.display="block";
-    loadOrders();
-    loadProducts();
-    alert("Welcome, " + user.name);
-  }else{
-    document.getElementById("login-msg").innerText="Invalid email or password!";
-  }
-}
-
-function logoutAdmin(){
-  document.getElementById("admin-panel").style.display="none";
-  document.getElementById("login-container").style.display="block";
-  document.getElementById("admin-email").value="";
-  document.getElementById("admin-pass").value="";
-}
-
-// Orders
-function loadOrders(){
-  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  const tbody = document.getElementById("orders-table");
-  tbody.innerHTML="";
-  orders.forEach(o => {
-    const tr = document.createElement("tr");
-    const address = `House: ${o.address.house}, Village: ${o.address.village}, District: ${o.address.district}, State: ${o.address.state}, Pincode: ${o.address.pincode}, Landmarks: ${o.address.landmarks}`;
-    const waLink = `https://wa.me/919415977070?text=${encodeURIComponent(`Order: ${o.product}\nPrice: ${o.price}\nCustomer: ${o.customer}\nPhone: ${o.phone}\nAddress: ${address}`)}`;
-    tr.innerHTML = `
-      <td>${o.date}</td>
-      <td>${o.product}</td>
-      <td>${o.price}</td>
-      <td>${o.customer}</td>
-      <td>${o.phone}</td>
-      <td>${address}</td>
-      <td><a href="${waLink}" target="_blank">WhatsApp</a></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-// Load products
-function loadProducts(){
-  const products = JSON.parse(localStorage.getItem("products") || "[]");
-  const container = document.getElementById("product-list");
-  container.innerHTML = "";
-  products.forEach((p, index)=>{
-    const prodDiv = document.createElement("div");
-    prodDiv.className="product-item";
-    const imgSrc = p.img.startsWith("data:") ? p.img : p.img;
-    prodDiv.innerHTML = `
-      <div class="product-info">
-        <img src="${imgSrc}">
-        <div>
-          <b>${p.name}</b><br>${p.price}<br>
-          <label>
-            <input type="checkbox" ${p.outOfStock ? "checked" : ""} onchange="toggleStock(${index}, this.checked)"> Out of Stock
-          </label>
+    <!-- Modals -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="product-modal-title">Add Product</h2>
+            <form id="product-form">
+                <input type="hidden" id="product-id">
+                <input type="text" id="product-name" placeholder="Product Name" required>
+                <input type="text" id="product-category" placeholder="Category" required>
+                <input type="number" id="product-price" placeholder="Price" step="0.01" required>
+                <textarea id="product-description" placeholder="Description" rows="4"></textarea>
+                <input type="url" id="product-image-url" placeholder="Image URL" required>
+                <button type="submit">Save Product</button>
+            </form>
         </div>
-      </div>
-      <div class="product-actions">
-        <button onclick="removeProduct(${index})" style="background:#ff4444; color:white;">Remove</button>
-      </div>
-    `;
-    container.appendChild(prodDiv);
-  });
-}
+    </div>
+    
+    <div id="slider-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Add Slider Image</h2>
+            <form id="slider-form">
+                <input type="url" id="slider-image-url" placeholder="Image URL" required>
+                <button type="submit">Add Image</button>
+            </form>
+        </div>
+    </div>
 
-// Add product
-function addProduct(){
-  const name = document.getElementById("new-name").value.trim();
-  const price = document.getElementById("new-price").value.trim();
-  const imgInput = document.getElementById("new-img");
-  if(!name || !price || !imgInput.files[0]){ alert("Fill all fields"); return; }
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const imgData = e.target.result;
-    let products = JSON.parse(localStorage.getItem("products") || "[]");
-    products.push({name, price, img:imgData, outOfStock:false});
-    localStorage.setItem("products", JSON.stringify(products));
-    loadProducts();
-    document.getElementById("new-name").value="";
-    document.getElementById("new-price").value="";
-    imgInput.value="";
-  }
-  reader.readAsDataURL(imgInput.files[0]);
-}
 
-// Remove product
-function removeProduct(index){
-  let products = JSON.parse(localStorage.getItem("products") || "[]");
-  products.splice(index,1);
-  localStorage.setItem("products", JSON.stringify(products));
-  loadProducts();
-}
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, push, remove, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-// Toggle out-of-stock
-function toggleStock(index, value){
-  let products = JSON.parse(localStorage.getItem("products") || "[]");
-  products[index].outOfStock = value;
-  localStorage.setItem("products", JSON.stringify(products));
-}
+        // *** CHANGED API KEY HERE ***
+        const firebaseConfig = {
+            apiKey: "AIzaSyDqrGDBtbzNjhUD9VXpqwZNAOfrIU9T8lY",
+            authDomain: "pankaj-enterprises.firebaseapp.com",
+            databaseURL: "https://pankaj-enterprises-default-rtdb.firebaseio.com",
+            projectId: "pankaj-enterprises",
+            storageBucket: "pankaj-enterprises.firebasestorage.app",
+            messagingSenderId: "848843005564",
+            appId: "1:848043005564:web:1303bc830075d102c65bf9",
+            measurementId: "G-W6LWPJ7YEM"
+        };
 
-</script>
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        let currentEditingProductId = null;
+
+        const adminPages = document.querySelectorAll('.admin-page');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        const navigateAdmin = (hash) => {
+            const targetId = hash.substring(1);
+            adminPages.forEach(p => p.classList.toggle('active', p.id === targetId));
+            navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === hash));
+        };
+        
+        window.addEventListener('hashchange', () => navigateAdmin(location.hash));
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!location.hash) location.hash = '#dashboard';
+            navigateAdmin(location.hash);
+            initAdminPanel();
+        });
+        navLinks.forEach(link => {
+            if (link.getAttribute('href')) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    location.hash = link.getAttribute('href');
+                });
+            }
+        });
+
+        const initAdminPanel = () => {
+            loadDashboardStats();
+            loadProducts();
+            loadOrders();
+            loadSliderImages();
+            loadMessages();
+        };
+
+        const loadDashboardStats = () => {
+            onValue(ref(db, 'products'), s => document.getElementById('total-products').textContent = s.exists() ? Object.keys(s.val()).length : 0);
+            onValue(ref(db, 'orders'), s => {
+                let count = 0;
+                if (s.exists()) {
+                    Object.values(s.val()).forEach(userOrders => {
+                        count += Object.keys(userOrders).length;
+                    });
+                }
+                document.getElementById('total-orders').textContent = count;
+            });
+            onValue(ref(db, 'users'), s => document.getElementById('total-users').textContent = s.exists() ? Object.keys(s.val()).length : 0);
+            onValue(ref(db, 'messages'), s => document.getElementById('total-messages').textContent = s.exists() ? Object.keys(s.val()).length : 0);
+        };
+        
+        const loadProducts = () => {
+            onValue(ref(db, 'products'), snapshot => {
+                const tableBody = document.getElementById('products-table-body');
+                tableBody.innerHTML = '';
+                if(snapshot.exists()){
+                    snapshot.forEach(childSnapshot => {
+                        const product = childSnapshot.val();
+                        const productId = childSnapshot.key;
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td><img src="${product.imageUrl}" alt="${product.name}"></td>
+                                <td>${product.name}</td>
+                                <td>${product.category}</td>
+                                <td>₹${parseFloat(product.price).toFixed(2)}</td>
+                                <td class="action-btns">
+                                    <button class="btn-edit" data-id="${productId}">Edit</button>
+                                    <button class="btn-delete" data-id="${productId}">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+        };
+        
+        const productModal = document.getElementById('product-modal');
+        const productForm = document.getElementById('product-form');
+
+        document.getElementById('add-product-btn').addEventListener('click', () => {
+            currentEditingProductId = null;
+            document.getElementById('product-modal-title').textContent = 'Add Product';
+            productForm.reset();
+            productModal.classList.add('active');
+        });
+
+        document.getElementById('products-table-body').addEventListener('click', e => {
+            const productId = e.target.dataset.id;
+            if (e.target.classList.contains('btn-edit')) {
+                onValue(ref(db, `products/${productId}`), (snapshot) => {
+                    const product = snapshot.val();
+                    currentEditingProductId = productId;
+                    document.getElementById('product-modal-title').textContent = 'Edit Product';
+                    document.getElementById('product-id').value = productId;
+                    document.getElementById('product-name').value = product.name;
+                    document.getElementById('product-category').value = product.category;
+                    document.getElementById('product-price').value = product.price;
+                    document.getElementById('product-description').value = product.description;
+                    document.getElementById('product-image-url').value = product.imageUrl;
+                    productModal.classList.add('active');
+                }, { onlyOnce: true });
+            }
+            if (e.target.classList.contains('btn-delete')) {
+                if(confirm('Are you sure you want to delete this product?')) {
+                    remove(ref(db, `products/${productId}`));
+                }
+            }
+        });
+
+        productForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const productData = {
+                name: document.getElementById('product-name').value,
+                category: document.getElementById('product-category').value,
+                price: parseFloat(document.getElementById('product-price').value),
+                description: document.getElementById('product-description').value,
+                imageUrl: document.getElementById('product-image-url').value
+            };
+            
+            if (currentEditingProductId) {
+                set(ref(db, `products/${currentEditingProductId}`), productData)
+                    .then(() => productModal.classList.remove('active'));
+            } else {
+                push(ref(db, 'products'), productData)
+                    .then(() => productModal.classList.remove('active'));
+            }
+        });
+        
+        const loadOrders = () => {
+             onValue(ref(db, 'orders'), snapshot => {
+                const tableBody = document.getElementById('orders-table-body');
+                tableBody.innerHTML = '';
+                if(snapshot.exists()) {
+                    snapshot.forEach(userSnapshot => {
+                        const userId = userSnapshot.key;
+                        userSnapshot.forEach(orderSnapshot => {
+                            const order = orderSnapshot.val();
+                            const details = order.shippingDetails;
+
+                            if (!details) return; 
+
+                            const addressHtml = `
+                                ${details.houseNo}, ${details.village}<br>
+                                ${details.city}, ${details.state}<br>
+                                ${details.country}
+                            `;
+                            const contactHtml = `
+                                ${details.number}<br>
+                                <small>${details.email || 'N/A'}</small>
+                            `;
+
+                            tableBody.innerHTML += `
+                                <tr>
+                                    <td>${order.orderId.slice(-6)}</td>
+                                    <td>${details.name}</td>
+                                    <td>${contactHtml}</td>
+                                    <td>${addressHtml}</td>
+                                    <td>${new Date(order.date).toLocaleDateString()}</td>
+                                    <td>₹${order.totalAmount.toFixed(2)}</td>
+                                    <td>
+                                        <select class="status-select" data-user-id="${userId}" data-order-id="${order.orderId}" data-current-status="${order.status}">
+                                            <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                            <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                                            <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                            <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                        </select>
+                                    </td>
+                                    <td class="action-btns">
+                                        <button class="btn-delete" data-user-id="${userId}" data-order-id="${order.orderId}">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    });
+                }
+             });
+        };
+
+        document.getElementById('orders-table-body').addEventListener('change', e => {
+            if (e.target.classList.contains('status-select')) {
+                const { userId, orderId, currentStatus } = e.target.dataset;
+                const newStatus = e.target.value;
+                const orderRef = ref(db, `orders/${userId}/${orderId}`);
+                
+                if (newStatus === 'Shipped') {
+                    const trackingId = prompt("Please enter the tracking ID for this order:");
+                    if (trackingId && trackingId.trim() !== '') {
+                        update(orderRef, { status: newStatus, trackingId: trackingId });
+                    } else {
+                        alert("Tracking ID cannot be empty for 'Shipped' status. Order status remains unchanged.");
+                        e.target.value = currentStatus;
+                    }
+                } else {
+                    update(orderRef, { status: newStatus, trackingId: null });
+                }
+            }
+        });
+        
+        document.getElementById('orders-table-body').addEventListener('click', e => {
+            if (e.target.classList.contains('btn-delete')) {
+                const { userId, orderId } = e.target.dataset;
+                if(confirm('Are you sure you want to delete this order?')) {
+                    remove(ref(db, `orders/${userId}/${orderId}`));
+                }
+            }
+        });
+        
+        const sliderModal = document.getElementById('slider-modal');
+        const loadSliderImages = () => {
+            onValue(ref(db, 'sliderImages'), snapshot => {
+                const tableBody = document.getElementById('slider-table-body');
+                tableBody.innerHTML = '';
+                 if(snapshot.exists()) {
+                    snapshot.forEach(childSnapshot => {
+                        const imageId = childSnapshot.key;
+                        const image = childSnapshot.val();
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td><img src="${image.downloadURL}" alt="Slider Image"></td>
+                                <td>${image.downloadURL}</td>
+                                <td class="action-btns"><button class="btn-delete" data-id="${imageId}">Delete</button></td>
+                            </tr>
+                        `;
+                    });
+                 }
+            });
+        };
+
+        document.getElementById('add-slider-image-btn').addEventListener('click', () => sliderModal.classList.add('active'));
+        document.getElementById('slider-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const url = document.getElementById('slider-image-url').value;
+            push(ref(db, 'sliderImages'), { downloadURL: url }).then(() => {
+                e.target.reset();
+                sliderModal.classList.remove('active');
+            });
+        });
+        document.getElementById('slider-table-body').addEventListener('click', e => {
+            if (e.target.classList.contains('btn-delete')) {
+                if(confirm('Are you sure?')) remove(ref(db, `sliderImages/${e.target.dataset.id}`));
+            }
+        });
+        
+        const loadMessages = () => {
+             onValue(ref(db, 'messages'), snapshot => {
+                const tableBody = document.getElementById('messages-table-body');
+                tableBody.innerHTML = '';
+                 if(snapshot.exists()) {
+                    let messages = [];
+                    snapshot.forEach(child => messages.push(child.val()));
+                    messages.sort((a,b) => b.date - a.date).forEach(msg => {
+                         tableBody.innerHTML += `
+                            <tr>
+                                <td>${new Date(msg.date).toLocaleString()}</td>
+                                <td>${msg.name}</td>
+                                <td>${msg.email}</td>
+                                <td>${msg.message}</td>
+                            </tr>
+                         `;
+                    });
+                 }
+            });
+        };
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', e => {
+                if (e.target === modal || e.target.classList.contains('close-btn')) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
